@@ -205,3 +205,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Expense Dashboard specific
+.env
+*.db
+*.sqlite
+*.sqlite3
+node_modules/
+dist/
+venv/
+.venv/
