@@ -7,7 +7,14 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
 import os
+import json
 from dotenv import load_dotenv
+
+from models import ExpenseModel, UserSettingsModel
+from schemas import (
+    ExpenseCreate, ExpenseUpdate, ExpenseResponse,
+    UserSettingsCreate, UserSettingsResponse, DashboardSummary
+)
 
 # Load environment variables
 load_dotenv()
@@ -19,91 +26,8 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Database Models
-class ExpenseModel(Base):
-    __tablename__ = "expenses"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    done = Column(Boolean, default=False)
-    expense_details = Column(String, nullable=False)
-    category = Column(String, nullable=False)
-    occurrence = Column(Integer, default=1)
-    budget = Column(Float, nullable=False)
-    total_spend = Column(Float, nullable=False)
-    month = Column(String, nullable=True)
-    essential = Column(String, nullable=True)
-    deleted = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    deleted_at = Column(DateTime, nullable=True)
-
-class UserSettingsModel(Base):
-    __tablename__ = "user_settings"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    yearly_earning = Column(Float, default=1000000)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
 # Create tables
 Base.metadata.create_all(bind=engine)
-
-# Pydantic Models
-class ExpenseCreate(BaseModel):
-    expense_details: str
-    category: str
-    occurrence: int = 1
-    budget: float
-    month: Optional[str] = None
-    essential: Optional[str] = None
-
-class ExpenseUpdate(BaseModel):
-    expense_details: Optional[str] = None
-    category: Optional[str] = None
-    occurrence: Optional[int] = None
-    budget: Optional[float] = None
-    month: Optional[str] = None
-    essential: Optional[str] = None
-    done: Optional[bool] = None
-
-class ExpenseResponse(BaseModel):
-    id: int
-    done: bool
-    expense_details: str
-    category: str
-    occurrence: int
-    budget: float
-    total_spend: float
-    month: Optional[str]
-    essential: Optional[str]
-    deleted: bool
-    created_at: datetime
-    updated_at: datetime
-    deleted_at: Optional[datetime]
-
-    class Config:
-        from_attributes = True
-
-class UserSettingsCreate(BaseModel):
-    yearly_earning: float
-
-class UserSettingsResponse(BaseModel):
-    id: int
-    yearly_earning: float
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class DashboardSummary(BaseModel):
-    total_budget: float
-    total_spent: float
-    monthly_expenses: float
-    one_time_expenses: float
-    yearly_earning: float
-    expenses_by_category: List[dict]
-    monthly_trend: List[dict]
 
 # FastAPI App
 app = FastAPI(title="Expenditure Forecast API", version="1.0.0")
@@ -126,72 +50,119 @@ def get_db():
         db.close()
 
 # Initialize default settings
-@app.on_event("startup")
-async def startup_event():
-    db = SessionLocal()
+def load_seed_data_from_json(json_file_path: str = "./seed.json"):
+    """
+    Load seed data from JSON file and return parsed data
+    """
     try:
+        with open(json_file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+        return data
+    except FileNotFoundError:
+        print(f"JSON file {json_file_path} not found")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
+        return None
+
+def seed_database_from_json(db: Session, json_file_path: str = "seed_data.json"):
+    """
+    Seed the database with data from JSON file
+    """
+    try:
+        # Load data from JSON
+        seed_data = load_seed_data_from_json(json_file_path)
+        if not seed_data:
+            return False
+        
         # Check if settings exist, if not create default
         settings = db.query(UserSettingsModel).first()
         if not settings:
-            default_settings = UserSettingsModel(yearly_earning=1000000)
+            yearly_earning = seed_data.get("user_settings", {}).get("yearly_earning", 1000000)
+            default_settings = UserSettingsModel(yearly_earning=yearly_earning)
             db.add(default_settings)
             db.commit()
-            
-        # Create sample data if no expenses exist
+            print(f"Created user settings with yearly earning: ₹{yearly_earning:,}")
+        
+        # Check if expenses already exist
         expense_count = db.query(ExpenseModel).count()
-        if expense_count == 0:
-            sample_expenses = [
-                ExpenseModel(
-                    expense_details="Parekatta Donation",
-                    category="Essential",
-                    occurrence=1,
-                    budget=25000,
-                    total_spend=25000,
-                    month="Dec",
-                    essential="Must Do"
-                ),
-                ExpenseModel(
-                    expense_details="Maamu Gift",
-                    category="Essential",
-                    occurrence=1,
-                    budget=2000,
-                    total_spend=2000,
-                    month="Jun",
-                    essential="Must Do",
-                    done=True
-                ),
-                ExpenseModel(
-                    expense_details="Ather EMI",
-                    category="Needs",
-                    occurrence=12,
-                    budget=7000,
-                    total_spend=84000,
-                    essential="Essential"
-                ),
-                ExpenseModel(
-                    expense_details="Food (227 / day)",
-                    category="Needs",
-                    occurrence=12,
-                    budget=5000,
-                    total_spend=60000
-                ),
-                ExpenseModel(
-                    expense_details="Netflix Subscription",
-                    category="Wants",
-                    occurrence=12,
-                    budget=800,
-                    total_spend=9600
-                )
-            ]
-            
-            for expense in sample_expenses:
-                db.add(expense)
-            db.commit()
+        if expense_count > 0:
+            print(f"Database already has {expense_count} expenses. Skipping seed.")
+            return True
+        
+        # Create expenses from JSON data
+        expenses_data = seed_data.get("expenses", [])
+        expenses_created = []
+        
+        for expense_data in expenses_data:
+            expense = ExpenseModel(
+                expense_details=expense_data["expense_details"],
+                category=expense_data["category"],
+                occurrence=expense_data["occurrence"],
+                budget=expense_data["budget"],
+                total_spend=expense_data["total_spend"],
+                month=expense_data.get("month"),
+                essential=expense_data.get("essential"),
+                done=expense_data.get("done", False)
+            )
+            expenses_created.append(expense)
+            db.add(expense)
+        
+        # Commit all expenses
+        db.commit()
+        print(f"Successfully seeded database with {len(expenses_created)} expenses from JSON")
+        
+        # Print summary
+        categories = {}
+        done_count = 0
+        total_budget = 0
+        
+        for expense in expenses_created:
+            categories[expense.category] = categories.get(expense.category, 0) + 1
+            if expense.done:
+                done_count += 1
+            total_budget += expense.total_spend
+        
+        print("\n📊 Seed Summary:")
+        print(f"   Total Expenses: {len(expenses_created)}")
+        print(f"   Completed: {done_count}")
+        print(f"   Pending: {len(expenses_created) - done_count}")
+        print(f"   Total Budget: ₹{total_budget:,.2f}")
+        print(f"   Categories: {dict(categories)}")
+        
+        return True
+        
+    except Exception as e:
+        db.rollback()
+        print(f"Error seeding database from JSON: {e}")
+        return False
+
+# Updated startup event using JSON
+# @app.on_event("startup")
+# async def startup_event():
+#     db = SessionLocal()
+#     try:
+#         # Seed database from JSON file
+#         success = seed_database_from_json(db, "seed_data.json")
+#         if not success:
+#             print("Failed to seed database from JSON, falling back to default data")
+#             # You can add fallback logic here if needed
+#     finally:
+#         db.close()
+
+# Alternative: Manual seeding function
+@app.post("/seed_database")
+async def manual_seed_from_json():
+    """
+    Manually seed the database from JSON - useful for testing or re-seeding
+    """
+    db = SessionLocal()
+    try:
+        return seed_database_from_json(db, "./seed.json")
     finally:
         db.close()
 
 # API Routes
-
 @app.get("/")
 async def root():
     return {"message": "Expenditure Forecast API is running!"}
