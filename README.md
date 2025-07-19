@@ -1,265 +1,125 @@
-# 💰 Expense Dashboard
+# Expense Tracker Chatbot - FastAPI Backend
 
-A full-stack web application for comprehensive expense tracking and financial management, built with React, FastAPI, and PostgreSQL.
+A smart chatbot that parses natural language expense inputs and automatically adds them to your Notion expense tracker database.
 
-## 🌟 Features
+## Features
 
-### 📊 Dashboard Analytics
+🤖 **Natural Language Processing**: Parse expenses like "snacks food 200 essential yesterday"
+📊 **Notion Integration**: Automatically add expenses to your Notion database
+🏦 **Multi-Account Support**: Track expenses across different bank accounts
+📅 **Smart Date Parsing**: Handles "today", "yesterday", specific dates like "15 july"
+⚡ **FastAPI Backend**: High-performance async API with automatic documentation
+🐳 **Docker Ready**: Easy deployment with Docker and docker-compose
 
-- **Category-wise Spending**: Visual breakdown of expenses by category
-- **Monthly Trends**: Track spending patterns over time
-- **Budget vs Actual**: Compare planned vs actual expenses
-- **Financial Overview**: Total spending, monthly expenses, and earnings analysis
+## Quick Start
 
-### 💼 Expense Management
-
-- **CRUD Operations**: Create, read, update, and delete expenses
-- **Smart Categorization**: Organize expenses into Essential, Needs, Wants, and Invest
-- **Recurring Expenses**: Handle monthly and one-time expenses
-- **Priority Levels**: Mark expenses as "Must Do" or "Essential"
-
-### 🗑️ Trash & Recovery
-
-- **Soft Delete**: Safely delete expenses with recovery option
-- **Trash Bin**: View and manage deleted expenses
-- **Restore Functionality**: Easily restore accidentally deleted items
-- **Permanent Delete**: Option to permanently remove expenses
-
-### 🎨 Modern UI/UX
-
-- **Responsive Design**: Works perfectly on desktop and mobile
-- **Clean Interface**: Minimalistic and intuitive design
-- **Real-time Updates**: Instant feedback on all operations
-- **Beautiful Charts**: Interactive visualizations with Recharts
-
-## 🏗️ Architecture
-
-```
-expense-dashboard/
-├── frontend/          # React + Vite + TailwindCSS
-│   ├── src/
-│   ├── App.jsx
-│   ├── package.json
-│   └── ...
-├── backend/           # FastAPI + SQLAlchemy + PostgreSQL
-│   ├── main.py
-│   ├── models.py
-│   ├── schemas.py
-│   ├── requirements.txt
-│   └── ...
-└── README.md
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Node.js** 16+ (for frontend)
-- **Python** 3.8+ (for backend)
-- **PostgreSQL** (optional, SQLite is used by default)
-
-### 1. Clone the Repository
+### 1. Clone and Setup
 
 ```bash
-git clone <repository-url>
-cd expense-dashboard
+git clone <your-repo>
+cd expense-tracker-chatbot
 ```
 
-### 2. Backend Setup
+### 2. Configure Environment
+
+Copy `.env.example` to `.env` and fill in your Notion credentials:
 
 ```bash
-cd backend
-
-# Run the startup script (recommended)
-./start.sh
-
-# OR manual setup:
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
 cp .env.example .env
+```
+
+Edit `.env`:
+```
+NOTION_TOKEN=your_notion_integration_token_here
+NOTION_DATABASE_ID=your_notion_database_id_here
+```
+
+### 3. Setup Notion Database
+
+Create a Notion database with these properties:
+- **expense name** (Title)
+- **category** (Select): bills & utilities, general, food, transport, etc.
+- **amount** (Number)
+- **importance** (Select): essential, need, want, extra, investment
+- **bank account** (Select): HDFC, ICICI CC 3009, etc.
+- **assigned date** (Date)
+- **expense type** (Select): income, expense
+- **Date** (Date)
+
+### 4. Run with Docker (Recommended)
+
+```bash
+docker-compose up --build
+```
+
+### 5. Or Run Locally
+
+```bash
+pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-The backend will be available at `http://localhost:8000`
+## API Endpoints
 
-### 3. Frontend Setup
+- `POST /api/v1/chatbot/chat` - Main chatbot interface
+- `POST /api/v1/expenses/process` - Process complete expense
+- `GET /docs` - API documentation
+- `GET /health` - Health check
 
+## Usage Examples
+
+### Chat Interface
 ```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
+curl -X POST "http://localhost:8000/api/v1/chatbot/chat" \
+     -H "Content-Type: application/json" \
+     -d '{"text": "coffee food 50 want today"}'
 ```
 
-The frontend will be available at `http://localhost:3000`
-
-### 4. Access the Application
-
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-
-## 📱 Usage
-
-### Adding Expenses
-
-1. Click the "+" button to add a new expense
-2. Fill in the expense details:
-   - **Description**: What the expense is for
-   - **Category**: Essential, Needs, Wants, or Invest
-   - **Budget**: Amount allocated
-   - **Occurrence**: 1 for one-time, 12 for monthly
-   - **Month**: Specific month (for one-time expenses)
-   - **Priority**: Must Do, Essential, or leave empty
-
-### Managing Expenses
-
-- **Edit**: Click the edit icon on any expense row
-- **Delete**: Click the trash icon to soft delete
-- **Mark Done**: Check the checkbox to mark as completed
-- **Restore**: Go to trash tab to restore deleted items
-
-### Dashboard Insights
-
-- View spending by category in the pie chart
-- Track monthly trends in the line chart
-- Monitor budget vs actual spending
-- See financial summaries and projections
-
-## 🔧 Configuration
-
-### Environment Variables
-
-**Backend (.env)**:
-
-```env
-DATABASE_URL=postgresql://username:password@localhost:5432/expenditure_db
-DEBUG=True
-SECRET_KEY=your-secret-key
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
-```
-
-**Frontend**:
-
-```env
-VITE_API_URL=http://localhost:8000
-```
-
-### Database Setup
-
-**SQLite (Default)**:
-No additional setup required - database file created automatically.
-
-**PostgreSQL**:
-
-1. Install PostgreSQL
-2. Create database: `CREATE DATABASE expenditure_db;`
-3. Update `DATABASE_URL` in `.env`
-
-## 🧪 API Documentation
-
-The FastAPI backend provides comprehensive API documentation:
-
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-### Key Endpoints
-
-- `GET /expenses` - List all expenses
-- `POST /expenses` - Create new expense
-- `PUT /expenses/{id}` - Update expense
-- `DELETE /expenses/{id}` - Delete expense
-- `GET /dashboard` - Dashboard summary
-- `GET /expenses/trash` - Trash bin contents
-
-## 🎯 Future Enhancements
-
-### 🤖 AI Integration (Planned)
-
-- **Auto-categorization**: Automatically categorize expenses using AI
-- **Spending Insights**: AI-powered spending pattern analysis
-- **Budget Suggestions**: Smart budget recommendations
-- **Local LLM Support**: Integration with Langchain VLLMOpenAI
-
-### 📈 Advanced Analytics
-
-- **Yearly Comparisons**: Compare spending across years
-- **Forecasting**: Predict future expenses based on trends
-- **Goal Tracking**: Set and track financial goals
-- **Export Features**: Export data to Excel/PDF
-
-### 🔐 User Management
-
-- **Multi-user Support**: Individual user accounts
-- **Authentication**: Login/logout functionality
-- **Data Privacy**: User-specific data isolation
-
-## 🛠️ Development
-
-### Frontend Development
-
+### Direct Expense Processing
 ```bash
-cd frontend
-npm run dev     # Start development server
-npm run build   # Build for production
-npm run preview # Preview production build
+curl -X POST "http://localhost:8000/api/v1/expenses/process" \
+     -H "Content-Type: application/json" \
+     -d '{"text": "uber ride 200 essential yesterday hdfc cc"}'
 ```
 
-### Backend Development
+## Supported Expense Formats
 
-```bash
-cd backend
-source venv/bin/activate
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+- `"snacks food 200 essential yesterday"`
+- `"haircut general 150 need 9 july hdfc cc"`
+- `"uber ride 250 essential today"`
+- `"coffee 50 want"`
+- `"electricity bill 1200 essential icici cc"`
+
+## Categories
+- food, transport, general, entertainment, health
+- bills, groceries, meds, clothing, gadgets, etc.
+
+## Bank Accounts
+- HDFC, ICICI CC 3009, INDUSIND CC 6421, HDFC CC 6409, IND
+
+## Importance Levels
+- essential, need, want, extra, investment
+
+## Development
+
+### Project Structure
+```
+├── main.py                 # FastAPI application entry point
+├── config.py              # Configuration settings
+├── models.py              # Pydantic models
+├── routers/               # API route handlers
+│   ├── chatbot_router.py  # Chatbot conversation endpoints
+│   └── expense_router.py  # Expense processing endpoints
+├── services/              # Business logic
+│   ├── nlp_service.py     # Natural language processing
+│   └── notion_service.py  # Notion API integration
+└── requirements.txt       # Python dependencies
 ```
 
-### Database Migrations
+### Testing
 
-```bash
-cd backend
-alembic revision --autogenerate -m "Migration description"
-alembic upgrade head
-```
+Access the interactive API documentation at `http://localhost:8000/docs`
 
-## 📦 Deployment
+## License
 
-### Backend Deployment
-
-1. Set up PostgreSQL database
-2. Update environment variables
-3. Install dependencies: `pip install -r requirements.txt`
-4. Run with Gunicorn: `gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker`
-
-### Frontend Deployment
-
-1. Build the project: `npm run build`
-2. Deploy the `dist` folder to your hosting service
-3. Configure environment variables for production API URL
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [API Documentation](http://localhost:8000/docs)
-2. Review the setup instructions above
-3. Open an issue on GitHub
-
----
-
-**Happy expense tracking! 💰📊**
+MIT License

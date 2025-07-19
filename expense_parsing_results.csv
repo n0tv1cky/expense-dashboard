@@ -1,0 +1,6 @@
+expense_name,category,amount,importance,bank_account,assigned_date,expense_type
+snacks food,food,200.0,essential,HDFC,2025-07-18,expense
+haircut general,general,150.0,need,HDFC CC 6409,2025-07-19,expense
+uber ride,transport,250.0,essential,HDFC,2025-07-19,expense
+coffee,food,50.0,want,HDFC,2025-07-19,expense
+electricity bill,bills,1200.0,essential,ICICI CC 3009,2025-07-19,expense
