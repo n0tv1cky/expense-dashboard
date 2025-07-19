@@ -5,7 +5,7 @@ Natural Language Processing service for parsing expense text
 import re
 from datetime import datetime, timedelta
 from typing import Dict, Any
-from models import ExpenseData, ExpenseCategory, ExpenseImportance, BankAccount, ExpenseType
+from backend.models import ExpenseData, ExpenseCategory, ExpenseImportance, BankAccount, ExpenseType
 
 class ExpenseNLPService:
     def __init__(self):

@@ -11,10 +11,10 @@ import os
 from datetime import datetime
 import logging
 
-from routers import expense_router, chatbot_router
-from services.nlp_service import ExpenseNLPService
-from services.notion_service import NotionService
-from config import settings
+from backend.routers import expense_router, chatbot_router
+from backend.services.nlp_service import ExpenseNLPService
+from backend.services.notion_service import NotionService
+from backend.config import settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

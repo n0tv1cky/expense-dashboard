@@ -6,9 +6,9 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import Dict, Any, List
 import logging
 
-from models import ExpenseInput, ChatbotResponse
-from services.nlp_service import ExpenseNLPService
-from services.notion_service import NotionService
+from backend.models import ExpenseInput, ChatbotResponse
+from backend.services.nlp_service import ExpenseNLPService
+from backend.services.notion_service import NotionService
 
 logger = logging.getLogger(__name__)
 
