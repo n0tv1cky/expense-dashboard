@@ -127,3 +127,31 @@ async def test_notion_connection(
     except Exception as e:
         logger.error(f"Error testing Notion connection: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to test Notion connection: {str(e)}")
+
+@router.get("/list-databases")
+async def list_notion_databases(
+    notion_service: NotionService = Depends(get_notion_service)
+):
+    """
+    List all databases accessible by the Notion integration
+    """
+    try:
+        result = notion_service.list_databases()
+        return result
+    except Exception as e:
+        logger.error(f"Error listing Notion databases: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to list Notion databases: {str(e)}")
+
+@router.get("/database-schema")
+async def get_database_schema(
+    notion_service: NotionService = Depends(get_notion_service)
+):
+    """
+    Get the schema of the current Notion database
+    """
+    try:
+        result = notion_service.get_database_schema()
+        return result
+    except Exception as e:
+        logger.error(f"Error getting database schema: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get database schema: {str(e)}")
