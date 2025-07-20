@@ -1,3 +1,4 @@
+import ReactMarkdown from "react-markdown";
 import ExpenseDetails from "./ExpenseDetails";
 import "./Message.css";
 
@@ -15,7 +16,9 @@ function Message({ message }) {
   return (
     <div className={`message message--${message.type}`}>
       <div className="message-bubble">
-        <div className="message-text">{message.text}</div>
+        <div className="message-text">
+          <ReactMarkdown>{message.text}</ReactMarkdown>
+        </div>
 
         {message.expenseDetails && (
           <ExpenseDetails details={message.expenseDetails} />
