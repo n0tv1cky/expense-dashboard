@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Expense Tracker Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="header-content">
+                <h1 class="header-title">
+                    <span class="header-icon">💰</span>
+                    Expense Tracker Bot
+                </h1>
+                <p class="header-subtitle">Track your expenses with natural language</p>
+            </div>
+        </header>
+
+        <!-- Welcome Screen -->
+        <div class="welcome-screen" id="welcomeScreen">
+            <div class="welcome-content">
+                <div class="welcome-icon">🤖</div>
+                <h2>Welcome to your Personal Expense Tracker!</h2>
+                <p class="welcome-description">
+                    Simply type your expenses in natural language and I'll parse them for you.
+                </p>
+                
+                <div class="info-section">
+                    <h3>📝 How to use:</h3>
+                    <div class="example-format">
+                        <code>item category amount importance date bank</code>
+                    </div>
+                    <p class="format-description">
+                        Example: "coffee food 50 want today" or "uber transport 200 essential yesterday hdfc cc"
+                    </p>
+                </div>
+
+                <div class="quick-examples">
+                    <h4>🚀 Try these examples:</h4>
+                    <div class="example-buttons">
+                        <button class="btn btn--outline example-btn" data-example="coffee food 50 want today">
+                            ☕ Coffee Purchase
+                        </button>
+                        <button class="btn btn--outline example-btn" data-example="uber transport 200 essential yesterday hdfc cc">
+                            🚗 Uber Ride
+                        </button>
+                        <button class="btn btn--outline example-btn" data-example="groceries 1200 essential 15 july icici cc">
+                            🛒 Groceries
+                        </button>
+                        <button class="btn btn--outline example-btn" data-example="haircut general 300 need">
+                            ✂️ Haircut
+                        </button>
+                    </div>
+                </div>
+
+                <div class="supported-options">
+                    <div class="option-group">
+                        <h5>📂 Categories:</h5>
+                        <div class="tags">
+                            <span class="tag">food</span>
+                            <span class="tag">transport</span>
+                            <span class="tag">general</span>
+                            <span class="tag">entertainment</span>
+                            <span class="tag">health</span>
+                            <span class="tag">bills</span>
+                            <span class="tag">groceries</span>
+                            <span class="tag">meds</span>
+                            <span class="tag">clothing</span>
+                            <span class="tag">gadgets</span>
+                        </div>
+                    </div>
+                    
+                    <div class="option-group">
+                        <h5>⚡ Importance:</h5>
+                        <div class="tags">
+                            <span class="tag tag--success">essential</span>
+                            <span class="tag tag--warning">need</span>
+                            <span class="tag tag--info">want</span>
+                            <span class="tag">extra</span>
+                            <span class="tag">investment</span>
+                        </div>
+                    </div>
+                    
+                    <div class="option-group">
+                        <h5>🏦 Bank Accounts:</h5>
+                        <div class="tags">
+                            <span class="tag">HDFC</span>
+                            <span class="tag">ICICI CC 3009</span>
+                            <span class="tag">INDUSIND CC 6421</span>
+                            <span class="tag">HDFC CC 6409</span>
+                            <span class="tag">IND</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn--primary start-chat-btn" id="startChatBtn">
+                    Start Chatting 💬
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be inserted here -->
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-container">
+            <form class="chat-form" id="chatForm">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        class="form-control chat-input" 
+                        id="messageInput" 
+                        placeholder="Type your expense or say 'hello' for help..."
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="btn btn--primary send-btn" id="sendBtn">
+                        <span class="send-icon">📤</span>
+                        Send
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+        </div>
+
+        <!-- Error Toast -->
+        <div class="error-toast" id="errorToast">
+            <div class="toast-content">
+                <span class="toast-icon">⚠️</span>
+                <span class="toast-message" id="toastMessage"></span>
+                <button class="toast-close" id="toastClose">×</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

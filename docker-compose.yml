@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../install/Dockerfile.backend
+    container_name: expense-tracker-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env.dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend-react
+      dockerfile: ../install/Dockerfile.frontend
+    container_name: expense-tracker-frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend-react/.env.dev
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:5173",
+          "|",
+          "grep",
+          "-q",
+          "Expense",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - backend
