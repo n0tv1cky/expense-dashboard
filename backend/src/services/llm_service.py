@@ -13,7 +13,7 @@ class ExpenseLLMService:
         """
         Returns the system prompt for the LLM.
         """
-        return self.config.SYSTEM_PROMPT
+        return LLMConfig.get_system_prompt()
     
     def parse_expense(self, user_message: str) -> ExpenseData:
         from openai import OpenAI

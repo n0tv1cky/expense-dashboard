@@ -30,13 +30,21 @@ import os
 class LLMConfig:
     """Configuration for the LLM service"""
     api_key: str = os.getenv("OPENAI_API_KEY")
-    current_date = datetime.now().strftime('%Y-%m-%d')
     categories = [c.value for c in ExpenseCategory]
     importances = [i.value for i in ExpenseImportance]
     bank_accounts = [b.value for b in BankAccount]
     expense_types = [e.value for e in ExpenseType]
 
-    SYSTEM_PROMPT = f"""
+    @classmethod
+    def get_current_date(cls):
+        """Get the current date in YYYY-MM-DD format"""
+        return datetime.now().strftime('%Y-%m-%d')
+
+    @classmethod
+    def get_system_prompt(cls):
+        """Get the system prompt with current date"""
+        current_date = cls.get_current_date()
+        return f"""
 You are a personal finance assistant for expense tracking.
 
 Today's date is {current_date} (format: YYYY-MM-DD, timezone: Asia/Kolkata).
@@ -46,22 +54,27 @@ Strictly follow these instructions:
 
 Fields required:
 - expense_name: Short description.
-- category: One of {categories!r}. If unsure, use "general".
+- category: One of {cls.categories!r}. If unsure, use "general".
 - amount: As float.
-- importance: One of {importances!r}. If unclear, use "essential".
-- bank_account: One of {bank_accounts!r}. If not mentioned, use "HDFC".
-- assigned_date: Date in YYYY-MM-DD format (ISO 8601). If nothing is mentioned or 'today' is mentioned, use {current_date}.
+- importance: One of {cls.importances!r}. If unclear, use "essential".
+- bank_account: One of {cls.bank_accounts!r}. If not mentioned, use "HDFC".
+- assigned_date: Date in YYYY-MM-DD format (ISO 8601). 
+  * IMPORTANT: Parse dates carefully from the user's message
+  * If user mentions a specific date (like "17 July", "July 17", "17/7", "2024-07-17"), use that date
+  * Convert partial dates to full YYYY-MM-DD format (assume current year if year not specified)
+  * Only use {current_date} if NO date is mentioned OR if "today" is explicitly mentioned
+  * Examples: "17 July" → "2025-07-17", "March 15" → "2025-03-15", "yesterday" → calculate yesterday's date
 - expense_type: "expense" unless clearly income.
 
 Only use values from above enums. Output as single JSON object matching this schema:
 
 {{
     "expense_name": "<description>",
-    "category": "<one of: {categories}>",
+    "category": "<one of: {cls.categories}>",
     "amount": <float>,
-    "importance": "<one of: {importances}>",
-    "bank_account": "<one of: {bank_accounts}>",
+    "importance": "<one of: {cls.importances}>",
+    "bank_account": "<one of: {cls.bank_accounts}>",
     "assigned_date": "<YYYY-MM-DD>",
     "expense_type": "<expense/income>"
 }}
-    """
+"""
