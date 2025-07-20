@@ -32,7 +32,7 @@ class NotionService:
         
         # Format as UUID: 8-4-4-4-12
         formatted_id = f"{clean_id[:8]}-{clean_id[8:12]}-{clean_id[12:16]}-{clean_id[16:20]}-{clean_id[20:]}"
-        logger.info(f"Formatted database ID: {formatted_id}")
+        logger.info(f"Formatted database ID")
         return formatted_id
 
     def create_expense_page(self, expense: ExpenseData) -> Dict[str, Any]:

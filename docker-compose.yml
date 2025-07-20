@@ -11,12 +11,12 @@ services:
     env_file:
       - ./backend/.env.dev
     restart: unless-stopped
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 40s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
     build:
@@ -28,21 +28,21 @@ services:
     env_file:
       - ./frontend-react/.env.dev
     restart: unless-stopped
-    # healthcheck:
-    #   test:
-    #     [
-    #       "CMD",
-    #       "curl",
-    #       "-f",
-    #       "http://localhost:5173",
-    #       "|",
-    #       "grep",
-    #       "-q",
-    #       "Expense",
-    #     ]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
-    #   start_period: 40s
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:5173",
+          "|",
+          "grep",
+          "-q",
+          "Expense",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     depends_on:
       - backend
