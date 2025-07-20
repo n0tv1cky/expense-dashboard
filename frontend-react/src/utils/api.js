@@ -13,8 +13,9 @@ export const sendMessageToAPI = async (message) => {
   }
 };
 
-export const isGreeting = (message) => {
-  const greetings = ["hello", "hi", "hey", "help", "start"];
-  const lowerMessage = message.toLowerCase();
-  return greetings.some((greeting) => lowerMessage.includes(greeting));
-};
+export function isGreeting(message) {
+  const greetings = ["help"];
+  const normalized = message.trim().toLowerCase();
+  // Only match if the message starts with a greeting word
+  return greetings.some((greet) => normalized.startsWith(greet));
+}

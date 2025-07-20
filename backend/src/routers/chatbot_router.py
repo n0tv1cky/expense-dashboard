@@ -37,37 +37,6 @@ async def chat_with_bot(
     try:
         user_message = expense_input.text.strip()
 
-        # Handle greeting messages
-        if any(greeting in user_message.lower() for greeting in ['hello', 'hi', 'hey', 'start']):
-            return {
-                "response": "Hello! I'm your expense tracker assistant. You can tell me about your expenses in natural language. For example: \"snacks food 200 essential yesterday\" or \"uber ride 150 need today\". I'll parse it and add it to your Notion database!",
-                "success": True,
-                "type": "greeting"
-            }
-
-        # Handle help messages
-        if any(help_word in user_message.lower() for help_word in ['help', 'how', 'example']):
-            return {
-                "response": """I can help you track expenses! Here are some examples of how to format your expenses:
-
-📝 **Format**: [Item] [Category] [Amount] [Importance] [Date] [Bank Account]
-
-**Examples:**
-• "coffee food 50 want today"
-• "uber transport 200 essential yesterday hdfc cc"
-• "haircut general 300 need 15 july"
-• "groceries food 1200 essential icici cc"
-
-**Categories:** food, transport, general, entertainment, health, bills, groceries, etc.
-**Importance:** essential, need, want, extra, investment
-**Bank Accounts:** hdfc, icici cc, indusind cc, etc.
-**Dates:** today, yesterday, tomorrow, or specific dates like "15 july"
-
-Just type your expense and I'll add it to your Notion database! 🎯""",
-                "success": True,
-                "type": "help"
-            }
-
         # Process expense
         try:
             # Parse the expense
