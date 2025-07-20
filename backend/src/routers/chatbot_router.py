@@ -76,11 +76,10 @@ Just type your expense and I'll add it to your Notion database! 🎯""",
 
             # Validate that we have essential information
             if parsed_expense.amount <= 0:
-                return {
-                    "response": "I couldn't find a valid amount in your message. Please include the expense amount. For example: 'coffee 50' or 'lunch 200'",
-                    "success": False,
-                    "type": "error"
-                }
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid expense amount. Please include a valid expense amount greater than 0."
+                )
 
             # Add to Notion
             notion_result = notion_service.create_expense_page(parsed_expense)
@@ -112,20 +111,24 @@ Your expense has been added to Notion! 🎉"""
                     "notion_page_url": notion_result.get("url", "")
                 }
             else:
-                return {
-                    "response": f"❌ Failed to add expense to Notion: {notion_result.get('message', 'Unknown error')}",
-                    "success": False,
-                    "type": "error"
-                }
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to add expense to Notion: {notion_result.get('message', 'Unknown error')}"
+                )
 
+        except HTTPException:
+            # Re-raise HTTPExceptions so they maintain their status codes
+            raise
         except Exception as e:
             logger.error(f"Error processing expense: {str(e)}")
-            return {
-                "response": f"❌ Sorry, I encountered an error processing your expense: {str(e)}. Please try again.",
-                "success": False,
-                "type": "error"
-            }
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error processing expense: {str(e)}"
+            )
 
+    except HTTPException:
+        # Re-raise HTTPExceptions so they maintain their status codes
+        raise
     except Exception as e:
         logger.error(f"Error in chat endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Chatbot error: {str(e)}")

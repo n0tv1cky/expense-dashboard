@@ -18,15 +18,19 @@ class ExpenseLLMService:
     def parse_expense(self, user_message: str) -> ExpenseData:
         from openai import OpenAI
         client = OpenAI(api_key=self.config.api_key)
-
-        response = client.responses.parse(
-            model="gpt-4.1-nano",
-            instructions=self.get_system_prompt(),
-            input=user_message,
-            text_format=ExpenseData
-        )
-
-        return response.output_text
+        try:
+            response = client.beta.chat.completions.parse(
+                model="gpt-4.1-nano",
+                messages=[
+                    {"role": "system", "content": self.get_system_prompt()},
+                    {"role": "user", "content": user_message}
+                ],
+                response_format=ExpenseData
+            )
+            
+            return response.choices[0].message.parsed
+        except Exception as e:
+            raise RuntimeError(f"Failed to parse expense data: {str(e)}")
 
 
 if __name__ == "__main__":
