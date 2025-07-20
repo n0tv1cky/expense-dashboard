@@ -9,6 +9,7 @@ import logging
 from src.models import ExpenseInput, ChatbotResponse
 from src.services.nlp_service import ExpenseNLPService
 from src.services.notion_service import NotionService
+from src.services.llm_service import ExpenseLLMService
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +21,15 @@ def get_nlp_service():
 def get_notion_service():
     return NotionService()
 
+def get_llm_service():
+    return ExpenseLLMService()
+
 @router.post("/chat", response_model=Dict[str, Any])
 async def chat_with_bot(
     expense_input: ExpenseInput,
     nlp_service: ExpenseNLPService = Depends(get_nlp_service),
-    notion_service: NotionService = Depends(get_notion_service)
+    notion_service: NotionService = Depends(get_notion_service),
+    llm_service: ExpenseLLMService = Depends(get_llm_service)
 ):
     """
     Main chatbot endpoint - processes natural language expense input
@@ -66,7 +71,8 @@ Just type your expense and I'll add it to your Notion database! 🎯""",
         # Process expense
         try:
             # Parse the expense
-            parsed_expense = nlp_service.parse_expense(user_message)
+            # parsed_expense = nlp_service.parse_expense(user_message)
+            parsed_expense = llm_service.parse_expense(user_message)
 
             # Validate that we have essential information
             if parsed_expense.amount <= 0:
