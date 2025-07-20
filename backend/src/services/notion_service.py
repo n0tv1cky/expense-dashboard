@@ -4,8 +4,8 @@ Notion API service for creating expense entries
 
 import requests
 from typing import Dict, Any
-from backend.config import settings
-from backend.models import ExpenseData
+from src.config import settings
+from src.models import ExpenseData
 import logging
 
 logger = logging.getLogger(__name__)

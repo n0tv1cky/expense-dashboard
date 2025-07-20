@@ -11,10 +11,10 @@ import os
 from datetime import datetime
 import logging
 
-from backend.routers import expense_router, chatbot_router
-from backend.services.nlp_service import ExpenseNLPService
-from backend.services.notion_service import NotionService
-from backend.config import settings
+from src.routers import expense_router, chatbot_router
+from src.services.nlp_service import ExpenseNLPService
+from src.services.notion_service import NotionService
+from src.config import settings
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -50,6 +50,6 @@ async def root():
 async def health_check():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)

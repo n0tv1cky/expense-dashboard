@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "expense-dashboard"
+version = "0.1.0"
+description = "A dashboard for tracking expenses using Notion as a backend"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.setuptools.package-data]
+app = ["*"]
