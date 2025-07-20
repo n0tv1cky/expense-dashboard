@@ -1,8 +1,11 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  expense-tracker-api:
-    build: .
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./install/Dockerfile.backend
+    container_name: expense-tracker-backend
     ports:
       - "8000:8000"
     environment:
@@ -16,3 +19,13 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  frontend:
+    build:
+      context: ./frontend-react
+      dockerfile: ./install/Dockerfile.frontend
+    container_name: expense-tracker-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
