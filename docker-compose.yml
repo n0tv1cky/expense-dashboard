@@ -8,9 +8,6 @@ services:
     container_name: expense-tracker-backend
     ports:
       - "8000:8000"
-    environment:
-      - NOTION_TOKEN=${NOTION_TOKEN}
-      - NOTION_DATABASE_ID=${NOTION_DATABASE_ID}
     env_file:
       - ./backend/.env.dev
     restart: unless-stopped
